@@ -1,10 +1,11 @@
-const CACHE = "range-v2";
+const CACHE = "range-v3-video";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./visuals.js",
   "./app.js",
+  "./videos.js",
   "./icon.svg",
   "./icon-192.png",
   "./icon-512.png",

@@ -15,7 +15,7 @@ To preview from your iPhone on the same local Wi-Fi as your computer, use `http:
 
 ## Install on iPhone
 
-1. Upload the static app files to an HTTPS static host, such as Netlify, Cloudflare Pages, or GitHub Pages. There is no build command; publish the project root containing `index.html`. For a manual upload, include `app.js`, `visuals.js`, `styles.css`, `sw.js`, `manifest.webmanifest`, and all icons alongside it.
+1. Upload the static app files to an HTTPS static host, such as Netlify, Cloudflare Pages, or GitHub Pages. There is no build command; publish the project root containing `index.html`. For a manual upload, include `app.js`, `visuals.js`, `styles.css`, `videos.js`, `sw.js`, `manifest.webmanifest`, and all icons alongside it.
 2. Open the resulting HTTPS address in Safari on your iPhone.
 3. Choose **Share → Add to Home Screen → Add** (and **Open as Web App**, if offered).
 4. Launch Range from its Home Screen icon. Open it online once so the local assets can be cached; afterward the built-in library and your saved data work offline.
@@ -26,9 +26,9 @@ This is an installable web app, not an App Store binary. No Apple developer acco
 
 - **Today:** the original eight-movement, exactly 12-minute lower-body starter practice, covering hips, hamstrings, calves, ankles, and quads.
 - **Guided sessions:** accurate elapsed-time countdowns, explicit halfway side switches, pause/resume, optional gentle sound cues, and screen wake requests when supported. Each movement stops at zero so you can give feedback and move on at your own pace; a session can therefore take more than 12 minutes including setup and feedback.
-- **30 built-in exercises:** original vector position guides for every movement, with slow, pausable illustrative loops for the 12 dynamic movements. Setup, intended sensation, and form cautions accompany each guide. Reduced-motion preferences are respected.
+- **30 built-in exercises:** exercise details and guided sessions now use video-guide cards. Find real instructor demonstrations on YouTube, paste a preferred video link, and save it for that movement. Standard watch links, Shorts, short links, and timestamps are supported. Press Watch to load the embedded player, or open the original video on YouTube if embedding is unavailable. Written setup, intended sensation, and form cautions remain available offline. Small original illustrations remain as library thumbnails.
 - **Routine builder:** add/remove exercises, reorder both directions, edit individual total durations (10–1800 seconds), substitute from any area while retaining the slot's duration, and save/load named practices with their own durations.
-- **Custom movements:** create and edit your own names, instructions, body areas, durations, and side-switch preferences without code. Custom movements use your written instructions rather than an invented demonstration.
+- **Custom movements:** create and edit your own names, instructions, body areas, durations, and side-switch preferences without code. You can save a YouTube guide for custom movements too.
 - **Personal discovery:** mark movements Helpful, Not feeling it, or Uncomfortable. Preview a 12-minute suggestion based on your chosen focus and feedback. Helpful exercises are favored, uncomfortable exercises are excluded, and all five focus areas remain represented. Nothing replaces your current routine until you apply the suggestion. You can still manually select any movement.
 - **Progress:** session history, practiced time, active days, exercise feedback, knee-to-wall distance, seated reach gap, and subjective movement comfort. Check-ins show baseline changes and recent values; erroneous measurements can be deleted.
 - **Your data:** local browser persistence, validated JSON backups, and offline app assets. Imports validate before replacing existing data. Old MVP backups are supported.
@@ -49,6 +49,7 @@ With the app server running in another terminal:
 python3 -m unittest discover -s tests -v
 node --check app.js
 node --check visuals.js
+node --check videos.js
 node --check sw.js
 ```
 
@@ -64,11 +65,11 @@ python -m unittest discover -s tests -v
 
 The runner uses `/usr/bin/chromium` when present, otherwise Playwright's installed browser. Set `CHROMIUM_PATH` to another browser executable if needed. `RANGE_TEST_URL` can override the default local server address.
 
-**Verified:** 14 Chromium browser tests pass: a full 720-second session using a controlled clock; pause/resume and side switching; skips and partial exits; feedback and in-session swaps; duration persistence; routine save/reorder/load/delete; custom creation/editing; suggestions; measurements; backup export/import and invalid data rejection; offline reload; library search/filtering; and layouts at 320, 390, 430, and 1280 pixels. JavaScript syntax checks pass. Physical iPhone/Safari, sound output, and screen-wake behavior need device testing.
+**Verified:** 19 Chromium browser tests pass: a full 720-second session using a controlled clock; pause/resume and side switching; skips and partial exits; feedback and in-session swaps; duration persistence; routine save/reorder/load/delete; custom creation/editing; suggestions; measurements; backup export/import and invalid data rejection; offline reload; library search/filtering; and layouts at 320, 390, 430, and 1280 pixels. JavaScript syntax checks pass. The additional video tests cover URL safety/timestamps, save/replace/remove, persistence, legacy backups, iframe construction with an explicit mock, and timer pause/resume. External YouTube playback has not been verified: this cloud instance blocks YouTube access. The catalog currently has no preselected or vetted clips; Find an instructor opens a clearly labeled YouTube search. Physical iPhone/Safari, sound output, and screen-wake behavior need device testing.
 
 ## Practical limits
 
-- Illustrations are original schematic teaching aids, not filmed demonstrations or clinically reviewed biomechanics. Before a public coaching release, have a qualified movement professional review the instructions and illustrations and replace/augment them with reviewed video where needed. Stop movements that cause pain, numbness, or pinching.
+- Instructor videos are third-party YouTube content, require internet, and may contain ads, prohibit embedding, or become unavailable. They are not cached for offline viewing. A video is only loaded after you press Watch; opening either a video or a YouTube search pauses the practice timer, and resuming is manual. No instructor clips have been preselected or clinically reviewed. A qualified movement professional should review coaching material before a public coaching release. Stop movements that cause pain, numbness, or pinching.
 - Keep Range in the foreground. Locked screens and background execution may suspend browser timers or audio. The timer reconciles elapsed wall time on return and stops at the current movement's end; it does not silently advance through the remaining routine.
 - Sessions in progress are not persisted across a reload; the browser asks before leaving. Completed sessions, customizations, and measurements persist locally.
 - Data stays in this browser/profile and does not automatically sync across devices or between Safari and an installed Home Screen app. Export a backup before changing devices or installations. Clearing site storage can erase your history.
@@ -77,4 +78,4 @@ The runner uses `/usr/bin/chromium` when present, otherwise Playwright's install
 
 ## Files
 
-`app.js` preserves and extends the original application, exercise catalog, storage, routine editing, player, feedback, and progress. `visuals.js` contains original SVG guides and UI icons. `styles.css` is the mobile-first visual system; `sw.js` caches local app assets. The original uploaded ZIP is unchanged.
+`app.js` preserves and extends the original application, exercise catalog, storage, routine editing, player, feedback, and progress. `visuals.js` contains original SVG guides and UI icons. `styles.css` is the mobile-first visual system; `sw.js` caches local app assets. `videos.js` validates YouTube links and renders click-to-load instructor video players. It never downloads or redistributes third-party video files. The original uploaded ZIP is unchanged.

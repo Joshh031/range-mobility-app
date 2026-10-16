@@ -184,6 +184,71 @@ class RangeTests(unittest.TestCase):
         expect(self.page.locator('.toast')).to_contain_text('Backup imported')
         self.assertEqual(self.page.evaluate('secs("hip90")'),65)
 
+    def test_video_links_are_safe_and_timestamped(self):
+        for url in ['https://youtu.be/abcdefghijk?t=1m20s', 'https://www.youtube.com/watch?v=abcdefghijk&t=80', 'https://www.youtube.com/shorts/abcdefghijk?start=80']:
+            result=self.page.evaluate('(url)=>parseYouTubeURL(url)',url)
+            self.assertEqual(result,{'id':'abcdefghijk','start':80})
+        for url in ['javascript:alert(1)','https://youtube.com.evil.test/watch?v=abcdefghijk','https://www.youtube.com/results?search_query=hips','https://youtu.be/invalid','https://www.youtube.com/watch?v=abcdefghijk&t=-10','https://u:p@www.youtube.com/watch?v=abcdefghijk']:
+            result=self.page.evaluate('(url)=>{try{parseYouTubeURL(url);return false}catch{return true}}',url)
+            self.assertTrue(result,url)
+
+    def test_video_save_embed_replace_remove_and_persistence(self):
+        # Explicit network fixture: verifies the player plumbing, not a real YouTube clip.
+        self.page.route('https://www.youtube-nocookie.com/embed/**',lambda route:route.fulfill(status=200,content_type='text/html',body='<html><body>Instructor video test fixture</body></html>'))
+        self.page.locator('#today .routine-list .round-btn').first.click()
+        expect(self.page.locator('.detail-view iframe')).to_have_count(0)
+        self.page.locator('#video-url-hip90').fill('https://youtu.be/abcdefghijk?t=45')
+        self.page.get_by_role('button',name='Save video',exact=True).click()
+        expect(self.page.get_by_role('button',name='Watch demonstration')).to_be_visible()
+        self.page.get_by_role('button',name='Watch demonstration').click()
+        frame=self.page.locator('.video-guide iframe')
+        expect(frame).to_have_attribute('src','https://www.youtube-nocookie.com/embed/abcdefghijk?start=45&playsinline=1&rel=0&autoplay=1')
+        expect(self.page.frame_locator('.video-guide iframe').locator('body')).to_contain_text('Instructor video test fixture')
+        self.page.get_by_role('button',name='Close exercise details').click()
+        self.page.reload()
+        self.assertEqual(self.page.evaluate('state.videos.hip90'),{'id':'abcdefghijk','start':45})
+        self.page.locator('#today .routine-list .round-btn').first.click()
+        self.page.get_by_text('Change or remove this video',exact=True).click()
+        self.page.locator('#video-url-hip90').fill('https://youtu.be/lmnopqrstuv')
+        self.page.get_by_role('button',name='Save video',exact=True).click()
+        self.assertEqual(self.page.evaluate('state.videos.hip90.id'),'lmnopqrstuv')
+        self.page.get_by_text('Change or remove this video',exact=True).click()
+        self.page.get_by_role('button',name='Remove video',exact=True).click()
+        expect(self.page.locator('.video-guide')).to_contain_text('No video saved yet')
+        self.assertTrue(self.page.evaluate('!state.videos.hip90'))
+
+    def test_opening_video_pauses_session_without_counting_watch_time(self):
+        self.page.route('https://www.youtube-nocookie.com/embed/**',lambda route:route.fulfill(status=200,content_type='text/html',body='Video fixture'))
+        self.page.evaluate("state.videos.hip90={id:'abcdefghijk',start:0};save()")
+        self.page.clock.install()
+        self.page.get_by_role('button',name='Begin session').click()
+        self.page.get_by_role('button',name='Start',exact=True).click()
+        self.page.clock.fast_forward(5000)
+        self.page.get_by_role('button',name='Watch demonstration',exact=True).click()
+        self.assertFalse(self.page.evaluate('current.running'))
+        remaining=self.page.locator('#clock').inner_text()
+        self.page.clock.fast_forward(30000)
+        expect(self.page.locator('#clock')).to_have_text(remaining)
+        self.page.get_by_role('button',name='Resume',exact=True).click()
+        expect(self.page.locator('.video-guide iframe')).to_have_count(0)
+        self.assertTrue(self.page.evaluate('current.running'))
+
+    def test_video_backups_and_legacy_migration(self):
+        self.assertEqual(self.page.evaluate('validateData(initial).videos'),{})
+        self.page.evaluate("state.videos.hip90={id:'abcdefghijk',start:20};save()")
+        self.assertEqual(self.page.evaluate('validateData(JSON.parse(JSON.stringify(state))).videos.hip90.start'),20)
+        for expression in ["{hip90:{id:'<script>',start:0}}","{unknown:{id:'abcdefghijk',start:0}}","{hip90:{id:'abcdefghijk',start:-1}}"]:
+            self.assertTrue(self.page.evaluate("(()=>{try{validateData({...state,videos:"+expression+"});return false}catch{return true}})()"))
+
+    def test_invalid_video_keeps_existing_selection(self):
+        self.page.evaluate("state.videos.hip90={id:'abcdefghijk',start:0};save()")
+        self.page.locator('#today .routine-list .round-btn').first.click()
+        self.page.get_by_text('Change or remove this video',exact=True).click()
+        self.page.locator('#video-url-hip90').fill('https://example.com/watch?v=abcdefghijk')
+        self.page.get_by_role('button',name='Save video',exact=True).click()
+        expect(self.page.locator('.toast')).to_contain_text('YouTube')
+        self.assertEqual(self.page.evaluate('state.videos.hip90.id'),'abcdefghijk')
+
     def test_offline_reload_and_assets(self):
         self.page.evaluate('navigator.serviceWorker.ready')
         self.page.wait_for_function('navigator.serviceWorker.controller!==null')

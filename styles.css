@@ -1287,3 +1287,147 @@ textarea {
 .exercise .round-btn[aria-label^="Edit"] {
   font-size: 11px;
 }
+.video-guide {
+  margin: 22px 0;
+  color: #253d30;
+  text-align: left;
+  border: 1px solid #dce3d0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f8f8ed;
+}
+.video-stage {
+  aspect-ratio: 16/10;
+  background: radial-gradient(ellipse at top right, #456449, #203f30);
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 225px;
+}
+.video-intro {
+  padding: 24px;
+  text-align: center;
+  max-width: 420px;
+  color: #f8f8ee;
+}
+.video-kicker {
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  color: #ceddae;
+}
+.video-intro h3 {
+  font:
+    400 27px/1.2 Georgia,
+    serif;
+  margin: 12px 0;
+}
+.video-intro p {
+  font-size: 11px;
+  line-height: 1.75;
+  color: #d5e0cd;
+  max-width: 300px;
+  margin: 10px auto 17px;
+}
+.video-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 9px;
+  background: #d0e4a3;
+  color: #233d2c;
+  font: 600 11px system-ui;
+  padding: 13px 14px;
+  text-decoration: none;
+  min-height: 44px;
+}
+.video-play svg {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+}
+.video-stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #101e16;
+}
+.video-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 15px;
+  font-size: 10px;
+  border-bottom: 1px solid #e0e5d4;
+  color: #66765b;
+}
+.video-toolbar a {
+  color: #335d3d;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.video-edit {
+  padding: 0 16px;
+}
+.video-edit summary {
+  padding: 14px 0;
+  min-height: 44px;
+  color: #35543c;
+  font-size: 11px;
+  line-height: 1.6;
+  font-weight: 600;
+}
+.video-edit p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #62725a;
+  margin: 0 0 14px;
+}
+.video-edit label {
+  color: #536c47;
+}
+.video-edit input {
+  font-size: 14px;
+  min-width: 0;
+}
+.video-edit .control {
+  margin: 12px 0;
+}
+.video-edit .tiny-link {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.5;
+}
+.video-note {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #6a765f;
+  margin: 0;
+  padding: 12px 16px 16px;
+}
+.detail-view .video-guide {
+  margin-top: 22px;
+}
+.session .video-guide .control .outline {
+  color: #2f513d;
+}
+@media (max-width: 370px) {
+  .video-intro {
+    padding: 20px 14px;
+  }
+  .video-intro h3 {
+    font-size: 24px;
+  }
+  .video-toolbar {
+    font-size: 9px;
+    padding: 12px;
+  }
+  .video-stage {
+    min-height: 240px;
+  }
+}
