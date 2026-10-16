@@ -1,0 +1,2 @@
+# Only for browser tests; the app has no runtime package dependencies.
+playwright==1.62.0
